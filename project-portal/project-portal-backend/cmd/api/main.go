@@ -6,6 +6,7 @@ import (
 
 	"carbon-scribe/project-portal/project-portal-backend/internal/auth"
 	"carbon-scribe/project-portal/project-portal-backend/internal/collaboration"
+	"carbon-scribe/project-portal/project-portal-backend/internal/integration"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
@@ -31,6 +32,13 @@ func main() {
 			&collaboration.Comment{},
 			&collaboration.Task{},
 			&collaboration.SharedResource{},
+			// Integrations
+			&integration.IntegrationConnection{},
+			&integration.WebhookConfig{},
+			&integration.WebhookDelivery{},
+			&integration.EventSubscription{},
+			&integration.OAuthToken{},
+			&integration.IntegrationHealth{},
 		)
 		if err != nil {
 			log.Printf("Failed to migrate database: %v", err)
@@ -48,6 +56,12 @@ func main() {
 	collabService := collaboration.NewService(collabRepo)
 	collabHandler := collaboration.NewHandler(collabService)
 	collaboration.RegisterRoutes(r, collabHandler)
+
+	// Integrations
+	integrationRepo := integration.NewRepository(db)
+	integrationService := integration.NewService(integrationRepo)
+	integrationHandler := integration.NewHandler(integrationService)
+	integration.RegisterRoutes(r, integrationHandler)
 
 	r.Run(":8080") // Server on port 8080
 }
