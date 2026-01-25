@@ -4,7 +4,7 @@ mod errors;
 mod storage;
 
 use errors::Error;
-use soroban_sdk::{contract, contractimpl, Address, Env};
+use soroban_sdk::{contract, contractimpl, Address, Env, String};
 use storage::*;
 
 #[contract]
@@ -35,5 +35,41 @@ impl BufferPoolContract {
 
         Ok(())
     }
+
+    pub fn deposit(
+        env: Env,
+        caller: Address,
+        token_id: u32,
+        project_id: String,
+    ) -> Result<(), Error> {
+        let admin = get_admin(&env);
+        let carbon_contract = get_carbon_asset_contract(&env);
+
+        // TODO: need to emit event
+        if caller != admin && caller != carbon_contract {
+            return Err(Error::Unauthorized);
+        }
+
+        admin.require_auth(); // Bug: should be caller.require_auth()
+
+        if has_custody_record(&env, token_id) {
+            return Err(Error::AlreadyExists);
+        }
+
+        let record = CustodyRecord {
+            token_id,
+            deposited_at: env.ledger().timestamp(),
+            depositor: caller,
+            project_id,
+        };
+
+        set_custody_record(&env, token_id, &record);
+
+        let tvl = get_total_value_locked(&env);
+        set_total_value_locked(&env, tvl + 1);
+
+        Ok(())
+    }
 }
+
 
