@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum RetirementPurpose {
@@ -22,11 +21,13 @@ model Company {
   annualRetirementTarget  Float               @default(0)
   netZeroTarget           Float               @default(0)
   netZeroTargetYear       Int?
-  createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @updatedAt
-
+  
   retirements             Retirement[]
   retirementTargets       RetirementTarget[]
+  users                   User[]
+
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
 
   @@map("companies")
 }
@@ -46,7 +47,7 @@ model Retirement {
   companyId         String
   company           Company             @relation(fields: [companyId], references: [id])
   userId            String              // User who performed retirement
-
+  user              User                @relation(fields: [userId], references: [id])
   creditId          String
   credit            Credit              @relation(fields: [creditId], references: [id])
 
@@ -74,6 +75,7 @@ model Retirement {
   certificate       RetirementCertificate?
 
   @@index([companyId])
+  @@index([userId])
   @@index([creditId])
   @@index([purpose])
   @@index([retiredAt])
@@ -110,4 +112,45 @@ model RetirementTarget {
 
   @@unique([companyId, year, month])
   @@map("retirement_targets")
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  password            String
+  firstName           String
+  lastName            String
+  role                String    @default("viewer")
+  companyId           String
+  company             Company   @relation(fields: [companyId], references: [id])
+  refreshToken        String?
+  lastLoginAt         DateTime?
+  lastLoginIp         String?
+  isActive            Boolean   @default(true)
+  emailVerified       Boolean   @default(false)
+  passwordResetToken  String?
+  passwordResetExpires DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  sessions            Session[]
+  retirements         Retirement[]
+
+  @@unique([companyId, email])
+  @@index([email])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  refreshToken String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  isValid      Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  lastUsedAt   DateTime?
+
+  @@index([refreshToken])
+  @@index([expiresAt])
 }

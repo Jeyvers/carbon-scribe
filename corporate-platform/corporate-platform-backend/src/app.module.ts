@@ -10,6 +10,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { CacheModule } from './cache/cache.module';
 import { RetirementAnalyticsModule } from './retirement-analytics/analytics.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RetirementAnalyticsModule } from './retirement-analytics/analytics.modu
     AnalyticsModule,
     CacheModule,
     RetirementAnalyticsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
