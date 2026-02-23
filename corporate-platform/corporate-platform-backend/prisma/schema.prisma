@@ -3,7 +3,17 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+enum RetirementPurpose {
+  SCOPE_1
+  SCOPE_2
+  SCOPE_3
+  CORPORATE
+  EVENTS
+  PRODUCT
 }
 
 model Company {
@@ -26,15 +36,16 @@ model Company {
 }
 
 model RetirementTarget {
-  id        String   @id @default(cuid())
+  id        String @id @default(cuid())
   companyId String
-  company   Company  @relation(fields: [companyId], references: [id])
   year      Int
+  month     Int
   target    Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  @@unique([companyId, year])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, year, month])
+  @@map("retirement_targets")
 }
 
 model Credit {
@@ -55,14 +66,14 @@ model Retirement {
   id        String  @id @default(cuid())
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
-  userId    String
+  userId    String // User who performed retirement
   user      User    @relation(fields: [userId], references: [id])
 
   creditId String
   credit   Credit @relation(fields: [creditId], references: [id])
 
   // Retirement details
-  amount         Int
+  amount         Float
   purpose        String // scope1, scope2, scope3, corporate, events, product
   purposeDetails String? // Additional context
 
