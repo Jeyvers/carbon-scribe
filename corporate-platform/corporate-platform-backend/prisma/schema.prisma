@@ -7,17 +7,19 @@ generator client {
 }
 
 model Company {
-  id                   String            @id @default(cuid())
-  name                 String
-  retirements          Retirement[]
-  users                User[]
-  ipWhitelists         IpWhitelist[]
-  bids                 Bid[]
-  retirementTargets    RetirementTarget[]
+  id                     String               @id @default(cuid())
+  name                   String
+  retirements            Retirement[]
+  users                  User[]
+  ipWhitelists           IpWhitelist[]
+  bids                   Bid[]
+  retirementTargets      RetirementTarget[]
+  retirementSchedules    RetirementSchedule[]
+  batchRetirements       BatchRetirement[]
   annualRetirementTarget Int?
   netZeroTarget          Int?
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
 }
 
 model Credit {
@@ -33,6 +35,7 @@ model Credit {
   available   Int
   retirements Retirement[]
   auctions    Auction[]
+  batchRetirements BatchRetirement[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
@@ -132,6 +135,8 @@ model User {
   retirements          Retirement[]
   bids                 Bid[]
   wonAuctions          Auction[]
+  retirementSchedules  RetirementSchedule[]
+  batchRetirements     BatchRetirement[]
 
   @@unique([companyId, email])
   @@index([email])
@@ -252,4 +257,66 @@ model RetirementTarget {
   updatedAt DateTime @updatedAt
 
   @@index([companyId, year, month])
+}
+
+model RetirementSchedule {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  name        String
+  description String?
+  frequency   String
+  nextRunAt   DateTime
+  endDate     DateTime?
+  timezone    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  executions  ScheduleExecution[]
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([isActive, nextRunAt])
+}
+
+model ScheduleExecution {
+  id          String   @id @default(cuid())
+  scheduleId  String
+  schedule    RetirementSchedule @relation(fields: [scheduleId], references: [id])
+  runAt       DateTime
+  completedAt DateTime?
+  status      String
+  error       String?
+  createdAt   DateTime @default(now())
+  batchItems  BatchRetirement[]
+
+  @@index([scheduleId])
+  @@index([status])
+  @@index([runAt])
+}
+
+model BatchRetirement {
+  id              String   @id @default(cuid())
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id])
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  creditId        String
+  credit          Credit   @relation(fields: [creditId], references: [id])
+  scheduleId      String?
+  schedule        RetirementSchedule? @relation(fields: [scheduleId], references: [id])
+  executionId     String?
+  execution       ScheduleExecution?  @relation(fields: [executionId], references: [id])
+  amount          Int
+  status          String
+  error           String?
+  createdAt       DateTime @default(now())
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([creditId])
+  @@index([scheduleId])
+  @@index([executionId])
 }
