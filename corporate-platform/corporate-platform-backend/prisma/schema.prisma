@@ -39,12 +39,31 @@ model Company {
 model Credit {
   id          String       @id @default(cuid())
   projectName String
+  country     String?
+  methodology String?
+  standard    String?
+  sdgs        String?
+  vintageYear Int?
+  price       Float?
   totalAmount Int
   available   Int
   retirements Retirement[]
   auctions    Auction[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+
+  // Search optimization
+  searchVector    String?
+  featured        Boolean   @default(false)
+  featuredUntil   DateTime?
+  viewCount       Int       @default(0)
+  purchaseCount   Int       @default(0)
+  lastPurchasedAt DateTime?
+
+  @@index([searchVector])
+  @@index([featured])
+  @@index([viewCount])
+  @@index([purchaseCount])
 }
 
 model Retirement {
