@@ -67,10 +67,10 @@ describe('SchedulingController', () => {
     );
   });
 
-  it('createBatchFromCsv throws when file is missing', async () => {
-    await expect(
+  it('createBatchFromCsv throws when file is missing', () => {
+    expect(() =>
       controller.createBatchFromCsv(mockUser, undefined, 'Batch', undefined),
-    ).rejects.toThrow(BadRequestException);
+    ).toThrow(BadRequestException);
   });
 
   it('createBatchFromCsv calls service when file has buffer', async () => {
