@@ -13,15 +13,28 @@ model Company {
   netZeroTarget          Float  @default(0)
   netZeroTargetYear      Int?
 
-  retirements Retirement[]
-  users       User[]
-  carts       Cart[]
-  orders      Order[]
+  retirements       Retirement[]
+  retirementTargets RetirementTarget[]
+  users             User[]
+  carts             Cart[]
+  orders            Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("companies")
+}
+
+model RetirementTarget {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  year      Int
+  target    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([companyId, year])
 }
 
 model Credit {
