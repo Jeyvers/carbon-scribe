@@ -11,7 +11,6 @@ import { PrismaService } from '../src/shared/database/prisma.service';
 describe('Retirement Scheduling (e2e)', () => {
   let app: INestApplication;
   let jwtService: JwtService;
-  let prisma: PrismaService;
   let validToken: string;
 
   const mockCompanyId = 'company-e2e-1';
@@ -60,7 +59,6 @@ describe('Retirement Scheduling (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     jwtService = moduleFixture.get<JwtService>(JwtService);
-    prisma = moduleFixture.get<PrismaService>(PrismaService);
 
     validToken = jwtService.sign({
       sub: mockUserId,
