@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SecurityService } from './security.service';
+import { PrismaService } from '../shared/database/prisma.service';
 
 describe('SecurityService', () => {
   let service: SecurityService;
@@ -23,9 +24,9 @@ describe('SecurityService', () => {
       providers: [
         SecurityService,
         {
-          provide: 'PrismaService',
+          provide: PrismaService,
           useValue: prisma,
-        } as any,
+        },
       ],
     }).compile();
 
@@ -58,4 +59,3 @@ describe('SecurityService', () => {
     expect(allowed).toBe(false);
   });
 });
-
