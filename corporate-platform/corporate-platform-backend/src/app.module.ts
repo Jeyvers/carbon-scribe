@@ -9,7 +9,8 @@ import { WebhooksModule } from './webhooks/webhooks.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { CacheModule } from './cache/cache.module';
 import { AuthModule } from './auth/auth.module';
-
+import { AuctionModule } from './auction/auction.module';
+import { SecurityModule } from './security/security.module';
 @Module({
   imports: [
     RetirementModule,
@@ -20,6 +21,8 @@ import { AuthModule } from './auth/auth.module';
     AnalyticsModule,
     CacheModule,
     AuthModule,
+    AuctionModule,
+    SecurityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
