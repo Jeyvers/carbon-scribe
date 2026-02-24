@@ -295,19 +295,6 @@ model Bid {
   @@index([userId])
 }
 
-model RetirementTarget {
-  id        String   @id @default(cuid())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id])
-  year      Int
-  month     Int
-  target    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([companyId, year, month])
-}
-
 model RetirementSchedule {
   id               String   @id @default(cuid())
   companyId        String
